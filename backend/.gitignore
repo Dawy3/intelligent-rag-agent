@@ -78,9 +78,6 @@ temp/
 *.swp
 *~
 
-# Docker
-.dockerignore
-
 # OS
 Thumbs.db
 .DS_Store
