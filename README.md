@@ -1,7 +1,6 @@
 # Intelligent RAG Agent
 
-An intelligent Retrieval-Augmented Generation (RAG) agent powered by LangGraph that intelligently decides which tools to use for answering queries.
-
+An intelligent RAG (Retrieval-Augmented Generation) agent powered by LangGraph that autonomously decides which tools to use - including vector search, web search, and SQL query generation - to answer complex questions with maximum accuracy.
 ## Features
 
 - 🤖 **Intelligent Agent**: Uses LangGraph to orchestrate tool usage
