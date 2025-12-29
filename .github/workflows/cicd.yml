@@ -55,6 +55,7 @@ jobs:
         OPENROUTER_API_KEY: test-key
         PINECONE_API_KEY: test-key
         TAVILY_API_KEY: test-key
+        MODEL_NAME : tngtech/deepseek-r1t2-chimera:free
       run: |
         pytest -v --cov=app --cov-report=term-missing --cov-report=xml
     
