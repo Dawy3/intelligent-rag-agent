@@ -4,7 +4,7 @@ LangGraph graph construction and agent workflow
 from typing import Literal
 from langgraph.graph import StateGraph, START, END
 from app.core.state import AgentState
-from app.core.agent import get_tools, get_tool_node
+from app.core.agents import get_tools, get_tool_node
 from app.services.llm import get_llm_with_tools
 
 
