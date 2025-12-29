@@ -10,39 +10,32 @@ An intelligent Retrieval-Augmented Generation (RAG) agent powered by LangGraph t
 - 🗄️ **SQL Query Generator**: Natural language to SQL queries with execution
 - 📄 **Document Processing**: PDF upload and chunking
 - 📊 **Analytics**: Track agent usage and tool statistics
-- 🎨 **Web Interface**: Beautiful Streamlit UI for easy interaction
 
 ## Architecture
 
 ```
-.
-├── backend/                 # FastAPI backend
-│   ├── app/
-│   │   ├── main.py          # FastAPI entry point
-│   │   ├── config.py        # Configuration management
-│   │   ├── api/v1/          # API layer
-│   │   │   ├── routes.py    # Endpoints
-│   │   │   └── schemas.py   # Pydantic models
-│   │   ├── core/            # AI logic
-│   │   │   ├── agents.py    # Tool definitions
-│   │   │   ├── graph.py     # LangGraph workflow
-│   │   │   ├── prompts.py   # System prompts
-│   │   │   └── state.py     # Agent state
-│   │   ├── services/        # External integrations
-│   │   │   ├── llm.py       # LLM service
-│   │   │   ├── vector_store.py  # Vector database
-│   │   │   └── ingestion.py # Document processing
-│   │   ├── db/              # Database layer
-│   │   │   ├── models.py    # Data models
-│   │   │   └── session.py   # DB connections
-│   │   └── utils/           # Utilities
-│   │       └── logging.py   # Logging setup
-│   └── requirements.txt
-├── frontend/                # Streamlit frontend
-│   ├── app.py               # Streamlit application
-│   ├── requirements.txt     # Frontend dependencies
-│   └── Dockerfile           # Frontend Docker image
-└── docker-compose.yml       # Multi-container setup
+backend/
+├── app/
+│   ├── main.py              # FastAPI entry point
+│   ├── config.py            # Configuration management
+│   ├── api/v1/              # API layer
+│   │   ├── routes.py        # Endpoints
+│   │   └── schemas.py       # Pydantic models
+│   ├── core/                # AI logic
+│   │   ├── agents.py        # Tool definitions
+│   │   ├── graph.py         # LangGraph workflow
+│   │   ├── prompts.py       # System prompts
+│   │   └── state.py         # Agent state
+│   ├── services/            # External integrations
+│   │   ├── llm.py           # LLM service
+│   │   ├── vector_store.py  # Vector database
+│   │   └── ingestion.py     # Document processing
+│   ├── db/                  # Database layer
+│   │   ├── models.py        # Data models
+│   │   └── session.py       # DB connections
+│   └── utils/               # Utilities
+│       └── logging.py       # Logging setup
+└── requirements.txt
 ```
 
 ## Prerequisites
@@ -120,15 +113,10 @@ uvicorn app.main:app --reload
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
-### Using Docker Compose (Recommended)
-
-The project includes both backend and frontend services. Use docker-compose to run everything:
+### Using Docker
 
 ```bash
-# Make sure you have .env file in backend/ directory with your API keys
-# Copy backend/.env.example to backend/.env and fill in your keys
-
-# Build and run all services (backend, frontend, postgres)
+# Build and run with Docker Compose
 docker-compose up --build
 
 # Run in background
@@ -137,26 +125,9 @@ docker-compose up -d
 # View logs
 docker-compose logs -f
 
-# View logs for specific service
-docker-compose logs -f backend
-docker-compose logs -f frontend
-
-# Stop all services
+# Stop
 docker-compose down
-
-# Stop and remove volumes (clean slate)
-docker-compose down -v
 ```
-
-**Services:**
-- **Backend API**: http://localhost:8000
-- **Frontend UI**: http://localhost:8501
-- **PostgreSQL**: localhost:5432
-
-**Access Points:**
-- Frontend UI: Open http://localhost:8501 in your browser
-- Backend API Docs: http://localhost:8000/docs
-- Backend Health: http://localhost:8000/health
 
 ## API Endpoints
 

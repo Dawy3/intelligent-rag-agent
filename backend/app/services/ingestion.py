@@ -50,6 +50,6 @@ class IngestionService:
             
 def get_ingestion_service() -> IngestionService:
     """Get ingestion service instance"""
-    return IngestionService
+    return IngestionService()
         
     

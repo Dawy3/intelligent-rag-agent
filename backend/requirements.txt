@@ -33,6 +33,7 @@ pinecone-client==5.0.1
 
 # Document processing
 pypdf==5.1.0
+cryptography==41.0.7
 
 # Search
 tavily-python==0.5.0

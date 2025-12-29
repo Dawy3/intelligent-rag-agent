@@ -52,7 +52,7 @@ class VectorStoreService:
         
     async def add_documents(self, documents):
         """Add documents to vector store"""
-        return await self.vectorstore.add_documents(documents)    
+        return self.vectorstore.add_documents(documents)    
     
     
     async def similarity_search(self, query:str, k:int = None):

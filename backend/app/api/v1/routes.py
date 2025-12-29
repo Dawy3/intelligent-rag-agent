@@ -1,7 +1,9 @@
 """
 API routes and endpoints
 """
+import os
 import tempfile
+import traceback
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from langchain_core.messages import HumanMessage
 
@@ -71,24 +73,54 @@ async def query_agent(request: QueryRequest):
 async def upload_document(file: UploadFile = File(...)):
     """Upload and process document"""
     
-    ingestion_service = get_ingestion_service()
-    vector_service = get_vector_store_service()
+    # Validate file type
+    if not file.filename.endswith('.pdf'):
+        raise HTTPException(
+            status_code=400, 
+            detail="Only PDF files are supported"
+        )
     
-    # Save temporarily
-    with tempfile.NamedTemporaryFile(delete=False, suffix =f"_{file.filename}") as tmp:
-        content = await file.read()
-        tmp.write(content)
-        tmp_path = tmp.name
-        
+    # Get services
+    ingestion_service = get_ingestion_service()
+    
+    # Check vector store availability
     try:
-        # Process document
+        vector_service = get_vector_store_service()
+        if not hasattr(vector_service, 'vectorstore') or vector_service.vectorstore is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Vector store not initialized. Check your PINECONE_API_KEY."
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Vector store error: {str(e)}"
+        )
+    
+    tmp_path = None
+    
+    try:
+        # Read file content
+        content = await file.read()
+        
+        # Check file size (10MB limit)
+        MAX_SIZE = 10 * 1024 * 1024
+        if len(content) > MAX_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail="File too large (max 10MB)"
+            )
+            
+        # Create temp file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf", mode='wb') as tmp:
+            tmp.write(content)
+            tmp_path = tmp.name
+            
+        # Process the PDF
         result = await ingestion_service.process_pdf(tmp_path, file.filename)
         
         # Store in vector database
         await vector_service.add_documents(result["chunks"])
-        
-        # Cleanup
-        ingestion_service.cleanup_temp_file(tmp_path)
         
         return DocumentUploadResponse(
             doc_id = result["doc_id"],
@@ -98,8 +130,23 @@ async def upload_document(file: UploadFile = File(...)):
         )
         
     except Exception as e:
-        ingestion_service.cleanup_temp_file(tmp_path)
-        raise HTTPException(status_code=500, detail=str(e))
+        # Log full error for debugging
+        print(f"Upload error: {str(e)}")
+        print(traceback.format_exc())
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process document: {str(e)}"
+        )
+    
+    finally:
+        # Cleanup temp file
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except Exception as cleanup_error:
+                print(f"Failed to cleanup temp file: {cleanup_error}")
+                
     
 
 @router.get("/agent/analytics", response_model=AnalyticsResponse)
