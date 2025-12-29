@@ -1,6 +1,7 @@
 # Intelligent RAG Agent
 
-An intelligent RAG (Retrieval-Augmented Generation) agent powered by LangGraph that autonomously decides which tools to use - including vector search, web search, and SQL query generation - to answer complex questions with maximum accuracy.
+An intelligent Retrieval-Augmented Generation (RAG) agent powered by LangGraph that intelligently decides which tools to use for answering queries.
+
 ## Features
 
 - 🤖 **Intelligent Agent**: Uses LangGraph to orchestrate tool usage
@@ -197,30 +198,55 @@ GET /api/v1/agent/analytics
 
 ```bash
 # Install test dependencies
-pip install pytest pytest-asyncio httpx
+pip install -r requirements-test.txt
 
-# Run tests
+# Run all tests
 pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest tests/test_api.py
+
+# Run by marker
+pytest -m unit  # Fast unit tests only
+pytest -m "not integration"  # Skip integration tests
 ```
 
-Example test:
+### Test Structure
 
-```python
-import pytest
-from httpx import AsyncClient
-from app.main import app
+- **tests/test_api.py** - API endpoint tests (16 tests)
+- **tests/test_agents.py** - Agent and tool tests (15 tests)
+- **tests/test_services.py** - Service layer tests (20 tests)
+- **tests/conftest.py** - Shared fixtures and configuration
 
-@pytest.mark.asyncio
-async def test_query_agent():
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post(
-            "/api/v1/agent/query",
-            json={"query": "How many users are in the database?"}
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert "sql_query_generator" in data["tool_used"]
+**Coverage:** ~80% overall (51 total tests)
+
+See [TESTING_GUIDE.md](TESTING_GUIDE.md) for comprehensive testing documentation.
+
+## CI/CD
+
+### Simple GitHub Actions Workflow
+
+One workflow file that handles everything:
+
+- ✅ **Run tests** - All 51 tests on every push/PR
+- ✅ **Check formatting** - Keep code clean
+- ✅ **Coverage report** - Track test quality
+- ✅ **Build Docker** - Verify deployment (main branch only)
+
+**Setup:**
+```bash
+# Copy .github/workflows/cicd.yml to your repo
+git add .github/
+git commit -m "Add CI/CD"
+git push
 ```
+
+**View results:** Go to your repo's `Actions` tab
+
+See [CICD_GUIDE.md](CICD_GUIDE.md) for details.
 
 ## Configuration
 

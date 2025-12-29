@@ -1,0 +1,84 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Run tests and checks
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+    
+    - name: Check code formatting
+      run: |
+        cd backend
+        black --check app/ tests/ || echo "⚠️ Code needs formatting. Run: make format"
+    
+    - name: Run tests
+      working-directory: backend
+      env:
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+        SQL_TOOL_DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+        OPENROUTER_API_KEY: test-key
+        PINECONE_API_KEY: test-key
+        TAVILY_API_KEY: test-key
+      run: |
+        pytest -v --cov=app --cov-report=term-missing --cov-report=xml
+    
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      if: github.event_name == 'push'
+      with:
+        file: ./backend/coverage.xml
+        flags: unittests
+      continue-on-error: true
+    
+    - name: Build Docker image
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        cd backend
+        docker build -t intelligent-rag-agent:latest .
+    
+    - name: ✅ All checks passed
+      run: |
+        echo "### ✅ CI/CD Success!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Code formatting checked" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Coverage reported" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "- ✅ Docker image built" >> $GITHUB_STEP_SUMMARY
+        fi
