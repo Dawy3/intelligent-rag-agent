@@ -6,7 +6,8 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.prebuilt import ToolNode
 from app.services.vector_store import get_vector_store_service
 from app.config import get_settings
-
+from app.services.sql_service import get_sql_service
+from app.services.llm import get_llm
 
 @tool
 async def search_knowledge_base(query: str) -> str:
@@ -63,8 +64,6 @@ async def sql_query_generator(natural_language_query: str) -> str:
     - "What are the top 5 products by sales?"
     - "Count how many orders were placed yesterday"
     """
-    from app.services.sql_service import get_sql_service
-    from app.services.llm import get_llm
     
     try:
         sql_service = get_sql_service()

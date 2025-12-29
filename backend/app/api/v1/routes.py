@@ -91,7 +91,7 @@ async def upload_document(file: UploadFile = File(...)):
         ingestion_service.cleanup_temp_file(tmp_path)
         
         return DocumentUploadResponse(
-            doc_id = result["doci_id"],
+            doc_id = result["doc_id"],
             filename= file.filename,
             chunks_created= result["num_chunks"],
             status= "success"

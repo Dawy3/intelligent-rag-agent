@@ -39,7 +39,10 @@ def create_intelligent_agent():
     graph = StateGraph(AgentState)
     
     # Add nodes
+    graph.add_node("tools", tool_node)
     graph.add_node("agent", agent)
+    
+    graph.set_entry_point("agent")
     graph.add_conditional_edges(
         "agent",
         should_continue,
@@ -48,7 +51,6 @@ def create_intelligent_agent():
             "end": END
         }
     )
-    
     graph.add_edge("tools", "agent") # After tools, go back to agent 
     
     return graph.compile()
