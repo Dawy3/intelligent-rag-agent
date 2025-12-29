@@ -1,3 +1,6 @@
+
+![ezgif-1737e0fd2fb8dfb3](https://github.com/user-attachments/assets/5d934bb8-76cf-4608-8e72-2da7b902bf02)
+
 # Intelligent RAG Agent
 
 An intelligent Retrieval-Augmented Generation (RAG) agent powered by LangGraph that intelligently decides which tools to use for answering queries.
